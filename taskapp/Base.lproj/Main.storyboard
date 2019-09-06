@@ -110,28 +110,31 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2oT-Qi-oEe">
-                                <rect key="frame" x="0.0" y="305" width="375" height="120"/>
+                            <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="zob-bz-jJM">
+                                <rect key="frame" x="0.0" y="295" width="375" height="120"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="120" id="7rc-Iv-BVZ"/>
+                                    <constraint firstAttribute="height" constant="120" id="SEa-yq-a3Z"/>
                                 </constraints>
-                            </pickerView>
+                                <date key="date" timeIntervalSinceReferenceDate="589354180.91377103">
+                                    <!--2019-09-05 05:29:40 +0000-->
+                                </date>
+                            </datePicker>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="HwL-fY-4O0" firstAttribute="leading" secondItem="RqK-qI-KDi" secondAttribute="leading" constant="10" id="01X-Fr-g6h"/>
                             <constraint firstItem="RqK-qI-KDi" firstAttribute="trailing" secondItem="HwL-fY-4O0" secondAttribute="trailing" constant="10" id="5Xf-Vc-4Wi"/>
-                            <constraint firstItem="2oT-Qi-oEe" firstAttribute="top" secondItem="uMz-Ji-EAG" secondAttribute="bottom" constant="10" id="8ao-2S-j6K"/>
                             <constraint firstItem="yZy-T1-wDs" firstAttribute="leading" secondItem="RqK-qI-KDi" secondAttribute="leading" constant="10" id="Etb-ns-k6X"/>
                             <constraint firstItem="RqK-qI-KDi" firstAttribute="trailing" secondItem="yZy-T1-wDs" secondAttribute="trailing" constant="10" id="Ffy-5I-lPq"/>
                             <constraint firstItem="hXm-DU-Qco" firstAttribute="leading" secondItem="RqK-qI-KDi" secondAttribute="leading" constant="10" id="HXf-EM-MGj"/>
+                            <constraint firstItem="zob-bz-jJM" firstAttribute="trailing" secondItem="RqK-qI-KDi" secondAttribute="trailing" id="K1T-Tt-TZT"/>
                             <constraint firstItem="uMz-Ji-EAG" firstAttribute="leading" secondItem="RqK-qI-KDi" secondAttribute="leading" constant="10" id="VdD-o5-ReD"/>
                             <constraint firstItem="hXm-DU-Qco" firstAttribute="top" secondItem="RqK-qI-KDi" secondAttribute="top" constant="10" id="WHo-ZJ-PZM"/>
                             <constraint firstItem="uMz-Ji-EAG" firstAttribute="top" secondItem="HwL-fY-4O0" secondAttribute="bottom" constant="10" id="aqt-zA-XXr"/>
                             <constraint firstItem="RqK-qI-KDi" firstAttribute="trailing" secondItem="uMz-Ji-EAG" secondAttribute="trailing" constant="10" id="dld-D6-iaH"/>
-                            <constraint firstItem="2oT-Qi-oEe" firstAttribute="leading" secondItem="RqK-qI-KDi" secondAttribute="leading" id="kNW-a8-4cm"/>
+                            <constraint firstItem="zob-bz-jJM" firstAttribute="leading" secondItem="RqK-qI-KDi" secondAttribute="leading" id="gNJ-Hp-gwZ"/>
                             <constraint firstItem="yZy-T1-wDs" firstAttribute="top" secondItem="hXm-DU-Qco" secondAttribute="bottom" constant="10" id="oNE-XB-GOB"/>
-                            <constraint firstItem="2oT-Qi-oEe" firstAttribute="trailing" secondItem="RqK-qI-KDi" secondAttribute="trailing" id="qIv-1t-nAw"/>
+                            <constraint firstItem="zob-bz-jJM" firstAttribute="top" secondItem="uMz-Ji-EAG" secondAttribute="bottom" id="tLU-UB-66W"/>
                             <constraint firstItem="HwL-fY-4O0" firstAttribute="top" secondItem="yZy-T1-wDs" secondAttribute="bottom" constant="10" id="vYJ-J3-ZwN"/>
                             <constraint firstItem="RqK-qI-KDi" firstAttribute="trailing" secondItem="hXm-DU-Qco" secondAttribute="trailing" constant="10" id="zm7-id-eJf"/>
                         </constraints>
@@ -139,7 +142,7 @@
                     </view>
                     <connections>
                         <outlet property="contentsTextView" destination="uMz-Ji-EAG" id="XJJ-UA-dJ8"/>
-                        <outlet property="datePicker" destination="2oT-Qi-oEe" id="46y-lh-NIU"/>
+                        <outlet property="datePicker" destination="zob-bz-jJM" id="gmI-ZE-mhy"/>
                         <outlet property="titleTextField" destination="yZy-T1-wDs" id="azA-yL-4V5"/>
                     </connections>
                 </viewController>
