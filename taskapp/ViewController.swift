@@ -13,6 +13,8 @@ import UserNotifications
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var filterTextField: UITextField!
+    @IBOutlet weak var title_category: UISegmentedControl!
     
     // Realmインスタンスを取得する
     let realm = try! Realm()  // ←追加
@@ -21,11 +23,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     // 日付近い順\順でソート：降順
     // 以降内容をアップデートするとリスト内は自動的に更新される。
     var taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: false)  // ←追加
+    var indexPath_number : Int = -1
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        
+        title_category.selectedSegmentIndex = 0
+        filterTextField.text = ""
+        filterTextField.placeholder = "タイトル検索"
         tableView.delegate = self
         tableView.dataSource = self
     }
@@ -37,22 +42,63 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if segue.identifier == "cellSegue" {
             let indexPath = self.tableView.indexPathForSelectedRow
             inputViewController.task = taskArray[indexPath!.row]
+            inputViewController.new_create_true = -1
+            indexPath_number = indexPath!.row
         } else {
             let task = Task()
             task.date = Date()
-            
             let allTasks = realm.objects(Task.self)
             if allTasks.count != 0 {
                 task.id = allTasks.max(ofProperty: "id")! + 1
             }
-            
             inputViewController.task = task
+            inputViewController.new_create_true = 1
+            indexPath_number = -1
         }
     }
     
     // 入力画面から戻ってきた時に TableView を更新させる
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        check_empty_db()
+        tableView.reloadData()
+    }
+    
+    @IBAction func filterTextField_dissmiss(_ sender: Any) {
+        //print("filterTextField_dissmiss")
+        view.endEditing(true)
+        taskArray_setup()
+    }
+    
+    @IBAction func title_category_func(_ sender: Any) {
+        if (title_category.selectedSegmentIndex == 0){
+            filterTextField.placeholder = "タイトル検索"
+        }else{
+            filterTextField.placeholder = "カテゴリー検索"
+        }
+        filterTextField.text = ""
+        taskArray_setup()
+    }
+    
+    @IBAction func unwind(_ segue: UIStoryboardSegue) {
+    }
+    
+    func check_empty_db(){
+        if (indexPath_number == -1){
+        }else if (taskArray[indexPath_number].title == "" && taskArray[indexPath_number].contents == ""){
+            delete_db(row_number : indexPath_number)
+            indexPath_number = -1
+        }
+    }
+    
+    func taskArray_setup(){
+        if (filterTextField.text! == ""){
+            taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: false)
+        }else if (title_category.selectedSegmentIndex == 0) {
+            taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: false).filter("title == '\(filterTextField.text!)'")
+        }else{
+            taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: false).filter("category == '\(filterTextField.text!)'")
+        }
         tableView.reloadData()
     }
     
@@ -66,18 +112,30 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // 再利用可能な cell を得る
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        
+    
         // Cellに値を設定する.  --- ここから ---
         let task = taskArray[indexPath.row]
-        cell.textLabel?.text = task.title
         
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        if (task.title == ""){
+            cell.textLabel?.text = "タイトルなし"
+        }else{
+            cell.textLabel?.text = task.title
+        }
         
-        let dateString:String = formatter.string(from: task.date)
-        cell.detailTextLabel?.text = dateString
+        if (title_category.selectedSegmentIndex == 0){
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd HH:mm"
+            let dateString:String = formatter.string(from: task.date)
+            cell.detailTextLabel?.text = dateString
+        }else if (task.category == ""){
+            cell.detailTextLabel?.text = "カテゴリー:なし"
+        }else{
+            cell.detailTextLabel?.text = "カテゴリー:\(task.category)"
+        }
+        //print("id:\(task.id) indexPath:\(indexPath) indexPath.row:\(indexPath.row) taskArray.count:\(taskArray.count)")
         // --- ここまで追加 ---
         
+        //内容を編集したCellのデータを返す
         return cell
     }
     
@@ -87,7 +145,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         performSegue(withIdentifier: "cellSegue",sender: nil)
     }
     
-    // セルが削除が可能なことを伝えるメソッド
+    // セルが削除が可能なことを伝えるメソッド（セル設定でスライドしたらdelete領域が現れる設定）
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath)-> UITableViewCell.EditingStyle {
         return .delete
     }
@@ -95,27 +153,32 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     // Delete ボタンが押された時に呼ばれるメソッド
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            // 削除するタスクを取得する
-            let task = self.taskArray[indexPath.row]
-            
-            // ローカル通知をキャンセルする
-            let center = UNUserNotificationCenter.current()
-            center.removePendingNotificationRequests(withIdentifiers: [String(task.id)])
-            
-            // データベースから削除する
+            delete_db(row_number : indexPath.row)
             try! realm.write {
-                self.realm.delete(task)
                 tableView.deleteRows(at: [indexPath], with: .fade)
-            }
-            
-            // 未通知のローカル通知一覧をログ出力
-            center.getPendingNotificationRequests { (requests: [UNNotificationRequest]) in
-                for request in requests {
-                    print("/---------------")
-                    print(request)
-                    print("---------------/")
-                }
             }
         } // --- ここまで変更 ---
     }
+    
+    func delete_db(row_number : Int){
+        //print("called delete_method")
+        // ローカル通知をキャンセルする
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [String(self.taskArray[row_number].id)])
+        
+        // データベースから削除する
+        try! realm.write {
+            self.realm.delete(self.taskArray[row_number])
+        }
+        
+        // 未通知のローカル通知一覧をログ出力
+        center.getPendingNotificationRequests { (requests: [UNNotificationRequest]) in
+            for request in requests {
+                print("/---------------")
+                print(request)
+                print("---------------/")
+            }
+        }
+    }
+    
 }

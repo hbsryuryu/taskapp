@@ -13,32 +13,55 @@ import UserNotifications
 class InputViewController: UIViewController {
 
     @IBOutlet weak var titleTextField: UITextField!
+    @IBOutlet weak var categoryTextField: UITextField!
     @IBOutlet weak var contentsTextView: UITextView!
     @IBOutlet weak var datePicker: UIDatePicker!
     var task: Task!
+    var new_create_true = -1
+    var backUp_category = "error"
+    var backUp_title = "error"
+    var backUp_contents = "error"
+    var backUp_date = Date()
     let realm = try! Realm()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        //titleTextField.placeholder = "タイトルを入力"
+        //contentsTextView.placeholder
         // 背景をタップしたらdismissKeyboardメソッドを呼ぶように設定する
         let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target:self, action:#selector(dismissKeyboard))
         self.view.addGestureRecognizer(tapGesture)
         
+        categoryTextField.text = task.category
         titleTextField.text = task.title
         contentsTextView.text = task.contents
         datePicker.date = task.date
+        backUp_task()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         try! realm.write {
-            self.task.title = self.titleTextField.text!
-            self.task.contents = self.contentsTextView.text
-            self.task.date = self.datePicker.date
-            self.realm.add(self.task, update: true)
+            if (new_create_true != 1 || self.contentsTextView.text != "" || self.titleTextField.text! != ""){
+                self.task.category = self.categoryTextField.text!
+                self.task.title = self.titleTextField.text!
+                self.task.contents = self.contentsTextView.text
+                self.task.date = self.datePicker.date
+                self.realm.add(self.task, update: true)
+                setNotification(task: task)
+            }
         }
-        setNotification(task: task)
+        new_create_true = -1
         super.viewWillDisappear(animated)
+    }
+    
+    @IBAction func button_cancel(_ sender: Any) {
+        allpy_backUp()
+        self.navigationController?.popViewController(animated: true)
+        //self.dismiss(animated:true)
+    }
+
+    @IBAction func button_reset(_ sender: Any) {
+        allpy_backUp()
     }
     
     @objc func dismissKeyboard(){
@@ -46,6 +69,20 @@ class InputViewController: UIViewController {
         view.endEditing(true)
     }
     
+    func backUp_task(){
+        backUp_category = task.category
+        backUp_title = task.title
+        backUp_contents = task.contents
+        backUp_date = task.date
+        //print("\(task.date)")
+    }
+    
+    func allpy_backUp(){
+        categoryTextField.text = backUp_category
+        titleTextField.text = backUp_title
+        contentsTextView.text = backUp_contents
+        datePicker.date = backUp_date
+    }
     // タスクのローカル通知を登録する --- ここから ---
     func setNotification(task: Task) {
         let content = UNMutableNotificationContent()
@@ -60,6 +97,9 @@ class InputViewController: UIViewController {
         } else {
             content.body = task.contents
         }
+        
+        
+        
         content.sound = UNNotificationSound.default
         
         // ローカル通知が発動するtrigger（日付マッチ）を作成
