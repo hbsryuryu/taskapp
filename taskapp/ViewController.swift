@@ -61,6 +61,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         check_empty_db()
+        taskArray_setup()
         tableView.reloadData()
     }
     
@@ -78,9 +79,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
         filterTextField.text = ""
         taskArray_setup()
-    }
-    
-    @IBAction func unwind(_ segue: UIStoryboardSegue) {
+        
     }
     
     func check_empty_db(){
@@ -115,7 +114,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
         // Cellに値を設定する.  --- ここから ---
         let task = taskArray[indexPath.row]
-        
         if (task.title == ""){
             cell.textLabel?.text = "タイトルなし"
         }else{

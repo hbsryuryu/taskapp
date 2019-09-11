@@ -206,8 +206,8 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="RqK-qI-KDi"/>
                     </view>
-                    <navigationItem key="navigationItem" id="oHz-WM-tHm">
-                        <barButtonItem key="rightBarButtonItem" title="cancel" id="bD6-Tv-zCK">
+                    <navigationItem key="navigationItem" id="oHz-WM-tHm" userLabel="Top Navigation Item">
+                        <barButtonItem key="rightBarButtonItem" systemItem="cancel" id="bD6-Tv-zCK">
                             <connections>
                                 <action selector="button_cancel:" destination="JTi-YX-TYx" id="EbU-sh-Nuw"/>
                             </connections>
