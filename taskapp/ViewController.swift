@@ -23,7 +23,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     // 日付近い順\順でソート：降順
     // 以降内容をアップデートするとリスト内は自動的に更新される。
     var taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: false)  // ←追加
-    var indexPath_number : Int = -1
+    var check_taskArray : Task!
+    var search_id_number : Int = -1
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,7 +44,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let indexPath = self.tableView.indexPathForSelectedRow
             inputViewController.task = taskArray[indexPath!.row]
             inputViewController.new_create_true = -1
-            indexPath_number = indexPath!.row
+            check_taskArray = taskArray[indexPath!.row]
+            search_id_number = taskArray[indexPath!.row].id
+            //print("\(search_id_number)")
         } else {
             let task = Task()
             task.date = Date()
@@ -53,7 +56,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }
             inputViewController.task = task
             inputViewController.new_create_true = 1
-            indexPath_number = -1
+            search_id_number = -1
         }
     }
     
@@ -83,10 +86,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func check_empty_db(){
-        if (indexPath_number == -1){
-        }else if (taskArray[indexPath_number].title == "" && taskArray[indexPath_number].contents == ""){
-            delete_db(row_number : indexPath_number)
-            indexPath_number = -1
+        if (search_id_number == -1){
+        }else if (check_taskArray.title == "" && check_taskArray.contents == ""){
+            delete_filtered_db()
+            search_id_number = -1
         }
     }
     
@@ -167,6 +170,27 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         // データベースから削除する
         try! realm.write {
             self.realm.delete(self.taskArray[row_number])
+        }
+        
+        // 未通知のローカル通知一覧をログ出力
+        center.getPendingNotificationRequests { (requests: [UNNotificationRequest]) in
+            for request in requests {
+                print("/---------------")
+                print(request)
+                print("---------------/")
+            }
+        }
+    }
+    
+    func delete_filtered_db(){
+        //print("called delete_filtered_db_method")
+        // ローカル通知をキャンセルする
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [String(self.check_taskArray.id)])
+        
+        // データベースから削除する
+        try! realm.write {
+            self.realm.delete(self.check_taskArray)
         }
         
         // 未通知のローカル通知一覧をログ出力
